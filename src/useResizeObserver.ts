@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 
-export function useResizeObserver<T extends Element | null>(
+export function useResizeObserver<T extends Element>(
   onResize?: (entry: T) => void
 ): {
   entry: ResizeObserverEntry | null

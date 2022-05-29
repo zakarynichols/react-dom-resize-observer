@@ -8,5 +8,5 @@ module.exports = {
   trailingComma: "none",
   bracketSpacing: true,
   bracketSameLine: false,
-  arrowParens: "avoid",
-};
+  arrowParens: "avoid"
+}
