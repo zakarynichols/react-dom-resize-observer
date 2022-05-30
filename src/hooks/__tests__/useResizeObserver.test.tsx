@@ -72,7 +72,9 @@ it("unobserves on unmount", () => {
 })
 
 it("returns the entry from the observer callback", () => {
-  let observerCallback: ResizeObserverCallback = () => {}
+  let observerCallback: ResizeObserverCallback = entries => {
+    return entries
+  }
 
   class ResizeObserver {
     constructor(callback: ResizeObserverCallback) {
@@ -96,26 +98,51 @@ it("returns the entry from the observer callback", () => {
     observerCallback(
       [
         {
-          borderBoxSize: undefined,
-          contentBoxSize: undefined,
-          contentRect: undefined,
-          devicePixelContentBoxSize: undefined
+          contentBoxSize: [
+            {
+              blockSize: 0,
+              inlineSize: 0
+            }
+          ],
+          contentRect: {
+            bottom: 0,
+            height: 0,
+            left: 0,
+            right: 0,
+            top: 0,
+            width: 0,
+            x: 0,
+            y: 0
+          },
+          target: <div />
         } as any
       ],
       new ResizeObserver(observerCallback)
     )
   })
   expect(result.current.entry).toEqual({
-    borderBoxSize: undefined,
-    contentBoxSize: undefined,
-    contentRect: undefined,
-    devicePixelContentBoxSize: undefined,
+    contentBoxSize: {
+      blockSize: 0,
+      inlineSize: 0
+    },
+    contentRect: {
+      bottom: 0,
+      height: 0,
+      left: 0,
+      right: 0,
+      top: 0,
+      width: 0,
+      x: 0,
+      y: 0
+    },
     target: expect.any(HTMLDivElement)
   })
 })
 
 it("calls onResize callback if there are entries", () => {
-  let observerCallback: ResizeObserverCallback = () => {}
+  let observerCallback: ResizeObserverCallback = entries => {
+    return entries
+  }
 
   class ResizeObserver {
     constructor(callback: ResizeObserverCallback) {
@@ -140,11 +167,24 @@ it("calls onResize callback if there are entries", () => {
     observerCallback(
       [
         {
-          borderBoxSize: undefined,
-          contentBoxSize: undefined,
-          contentRect: undefined,
-          devicePixelContentBoxSize: undefined
-        } as any as any
+          contentBoxSize: [
+            {
+              blockSize: 0,
+              inlineSize: 0
+            }
+          ],
+          contentRect: {
+            bottom: 0,
+            height: 0,
+            left: 0,
+            right: 0,
+            top: 0,
+            width: 0,
+            x: 0,
+            y: 0
+          },
+          target: <div />
+        } as any
       ],
       new ResizeObserver(observerCallback)
     )
@@ -152,10 +192,20 @@ it("calls onResize callback if there are entries", () => {
 
   expect(mockOnResize).toHaveBeenCalledTimes(1)
   expect(mockOnResize).toHaveBeenCalledWith({
-    borderBoxSize: undefined,
-    contentBoxSize: undefined,
-    contentRect: undefined,
-    devicePixelContentBoxSize: undefined,
+    contentBoxSize: {
+      blockSize: 0,
+      inlineSize: 0
+    },
+    contentRect: {
+      bottom: 0,
+      height: 0,
+      left: 0,
+      right: 0,
+      top: 0,
+      width: 0,
+      x: 0,
+      y: 0
+    },
     target: expect.any(HTMLDivElement)
   })
 })
