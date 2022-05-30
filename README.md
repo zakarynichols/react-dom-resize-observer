@@ -1,3 +1,13 @@
+# React Resize Observer
+
+Hook to provide a performant mechanism by which code can monitor an element for changes to its size, with notifications being delivered to the observer each time the size changes.
+
+### Installation
+
+```sh
+$ npm install react-dom-resize-observer
+```
+
 ### Examples
 
 ```tsx
