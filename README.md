@@ -2,9 +2,9 @@
 
 Hook to provide a performant mechanism by which code can monitor an element for changes to its size, with notifications being delivered to the observer each time the size changes.
 
-[![codecov](https://codecov.io/gh/zaknicholsdev/react-resize-observer/branch/develop/graph/badge.svg)](https://codecov.io/gh/zaknicholsdev/react-user-agent-client-hints)
+[![codecov](https://codecov.io/gh/zaknicholsdev/react-dom-resize-observer/branch/develop/graph/badge.svg)](https://codecov.io/gh/zaknicholsdev/react-dom-resize-observer)
 
-![example workflow](https://github.com/zaknicholsdev/react-resize-observer/actions/workflows/ci-cd.yml/badge.svg?branch=develop)
+![Workflow](https://github.com/zaknicholsdev/react-dom-resize-observer/actions/workflows/ci-cd.yml/badge.svg?branch=develop)
 
 
 ### Installation
