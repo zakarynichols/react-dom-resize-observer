@@ -24,7 +24,14 @@ export function useResizeObserver<T extends Element>(
       if (entries.length === 0) return
 
       const entry = entries[0]
-      const newEntry: ResizeObserverEntry & { target: T } = { ...entry, target: el }
+
+      const newEntry: ResizeObserverEntry & { target: T } = {
+        borderBoxSize: entry.borderBoxSize,
+        contentBoxSize: entry.contentBoxSize,
+        contentRect: entry.contentRect,
+        devicePixelContentBoxSize: entry.devicePixelContentBoxSize,
+        target: el
+      }
 
       setEntry(newEntry)
 

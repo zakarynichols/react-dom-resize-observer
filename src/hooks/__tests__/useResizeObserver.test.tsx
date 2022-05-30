@@ -93,9 +93,25 @@ it("returns the entry from the observer callback", () => {
   })
 
   act(() => {
-    observerCallback([{ test: "test" } as any], new ResizeObserver(observerCallback))
+    observerCallback(
+      [
+        {
+          borderBoxSize: undefined,
+          contentBoxSize: undefined,
+          contentRect: undefined,
+          devicePixelContentBoxSize: undefined
+        } as any
+      ],
+      new ResizeObserver(observerCallback)
+    )
   })
-  expect(result.current.entry).toEqual({ test: "test", target: expect.any(HTMLDivElement) })
+  expect(result.current.entry).toEqual({
+    borderBoxSize: undefined,
+    contentBoxSize: undefined,
+    contentRect: undefined,
+    devicePixelContentBoxSize: undefined,
+    target: expect.any(HTMLDivElement)
+  })
 })
 
 it("calls onResize callback if there are entries", () => {
@@ -121,11 +137,27 @@ it("calls onResize callback if there are entries", () => {
   })
 
   act(() => {
-    observerCallback([{ test: "test" } as any], new ResizeObserver(observerCallback))
+    observerCallback(
+      [
+        {
+          borderBoxSize: undefined,
+          contentBoxSize: undefined,
+          contentRect: undefined,
+          devicePixelContentBoxSize: undefined
+        } as any as any
+      ],
+      new ResizeObserver(observerCallback)
+    )
   })
 
   expect(mockOnResize).toHaveBeenCalledTimes(1)
-  expect(mockOnResize).toHaveBeenCalledWith({ target: expect.any(HTMLDivElement), test: "test" })
+  expect(mockOnResize).toHaveBeenCalledWith({
+    borderBoxSize: undefined,
+    contentBoxSize: undefined,
+    contentRect: undefined,
+    devicePixelContentBoxSize: undefined,
+    target: expect.any(HTMLDivElement)
+  })
 })
 
 it("returns a null entry and does not call onResize if no rentries were called back", () => {
