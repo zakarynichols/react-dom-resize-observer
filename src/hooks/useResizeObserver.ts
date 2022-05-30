@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 
 export function useResizeObserver<T extends Element>(
-  onResize?: (entry: T) => void
+  onResize?: (entry: ResizeObserverEntry & { target: T }) => void
 ): {
   entry: ResizeObserverEntry | null
   observer: (el: T) => void
@@ -24,11 +24,12 @@ export function useResizeObserver<T extends Element>(
       if (entries.length === 0) return
 
       const entry = entries[0]
+      const newEntry: ResizeObserverEntry & { target: T } = { ...entry, target: el }
 
-      setEntry(entry)
+      setEntry(newEntry)
 
       if (onResize) {
-        onResize(el)
+        onResize(newEntry)
       }
     })
 

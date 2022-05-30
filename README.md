@@ -19,9 +19,9 @@ $ npm install react-dom-resize-observer
 export function App() {
   // Pass a callback to be fired on resize event. 
   // Wrap in `useCallback` or in module scope for referential stability.
-  const onResize = useCallback((entry: HTMLDivElement | null) => {
+  const onResize = useCallback((entry: ResizeObserverEntry & { target: HTMLDivElement }) => {
     if (entry === null) return
-    entry.style.color = "orange"
+    // Do something with the entry...
   }, [])
 
   /*

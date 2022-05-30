@@ -85,7 +85,7 @@ it("returns the entry from the observer callback", () => {
 
   window.ResizeObserver = ResizeObserver
 
-  const { result } = renderHook(() => useResizeObserver())
+  const { result } = renderHook(() => useResizeObserver<HTMLDivElement>())
 
   act(() => {
     const el = document.createElement("div")
@@ -95,8 +95,7 @@ it("returns the entry from the observer callback", () => {
   act(() => {
     observerCallback([{ test: "test" } as any], new ResizeObserver(observerCallback))
   })
-
-  expect(result.current.entry).toEqual({ test: "test" })
+  expect(result.current.entry).toEqual({ test: "test", target: expect.any(HTMLDivElement) })
 })
 
 it("calls onResize callback if there are entries", () => {
@@ -114,7 +113,7 @@ it("calls onResize callback if there are entries", () => {
   window.ResizeObserver = ResizeObserver
 
   const mockOnResize = jest.fn()
-  const { result } = renderHook(() => useResizeObserver(mockOnResize))
+  const { result } = renderHook(() => useResizeObserver<HTMLDivElement>(mockOnResize))
 
   act(() => {
     const el = document.createElement("div")
@@ -126,6 +125,7 @@ it("calls onResize callback if there are entries", () => {
   })
 
   expect(mockOnResize).toHaveBeenCalledTimes(1)
+  expect(mockOnResize).toHaveBeenCalledWith({ target: expect.any(HTMLDivElement), test: "test" })
 })
 
 it("returns a null entry and does not call onResize if no rentries were called back", () => {
