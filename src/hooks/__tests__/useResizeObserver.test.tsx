@@ -1,6 +1,7 @@
 import { useResizeObserver } from "../useResizeObserver"
-import { fireEvent, render } from "@testing-library/react"
+import { act, fireEvent, render, renderHook } from "@testing-library/react"
 import React from "react"
+import { disconnect } from "process"
 
 let mockObserve = jest.fn()
 let mockDisconnect = jest.fn()
@@ -68,4 +69,91 @@ it("unobserves on unmount", () => {
   unmount()
 
   expect(mockUnobserve).toHaveBeenCalledTimes(1)
+})
+
+it("returns the entry from the observer callback", () => {
+  let observerCallback: ResizeObserverCallback = () => {}
+
+  class ResizeObserver {
+    constructor(callback: ResizeObserverCallback) {
+      observerCallback = callback
+    }
+    observe() {}
+    disconnect() {}
+    unobserve() {}
+  }
+
+  window.ResizeObserver = ResizeObserver
+
+  const { result } = renderHook(() => useResizeObserver())
+
+  act(() => {
+    const el = document.createElement("div")
+    result.current.observer(el)
+  })
+
+  act(() => {
+    observerCallback([{ test: "test" } as any], new ResizeObserver(observerCallback))
+  })
+
+  expect(result.current.entry).toEqual({ test: "test" })
+})
+
+it("calls onResize callback if there are entries", () => {
+  let observerCallback: ResizeObserverCallback = () => {}
+
+  class ResizeObserver {
+    constructor(callback: ResizeObserverCallback) {
+      observerCallback = callback
+    }
+    observe() {}
+    disconnect() {}
+    unobserve() {}
+  }
+
+  window.ResizeObserver = ResizeObserver
+
+  const mockOnResize = jest.fn()
+  const { result } = renderHook(() => useResizeObserver(mockOnResize))
+
+  act(() => {
+    const el = document.createElement("div")
+    result.current.observer(el)
+  })
+
+  act(() => {
+    observerCallback([{ test: "test" } as any], new ResizeObserver(observerCallback))
+  })
+
+  expect(mockOnResize).toHaveBeenCalledTimes(1)
+})
+
+it("returns a null entry and does not call onResize if no rentries were called back", () => {
+  let observerCallback: ResizeObserverCallback = () => {}
+
+  class ResizeObserver {
+    constructor(callback: ResizeObserverCallback) {
+      observerCallback = callback
+    }
+    observe() {}
+    disconnect() {}
+    unobserve() {}
+  }
+
+  window.ResizeObserver = ResizeObserver
+
+  const mockOnResize = jest.fn()
+  const { result } = renderHook(() => useResizeObserver(mockOnResize))
+
+  act(() => {
+    const el = document.createElement("div")
+    result.current.observer(el)
+  })
+
+  act(() => {
+    observerCallback([], new ResizeObserver(observerCallback))
+  })
+
+  expect(result.current.entry).toBeNull()
+  expect(mockOnResize).not.toHaveBeenCalled()
 })
