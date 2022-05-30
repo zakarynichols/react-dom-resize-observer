@@ -40,7 +40,7 @@ export function App() {
     } = useResizeObserver<HTMLDivElement>(onResize)
 
   return (
-    // Attack the observer as a ref to the DOM. 
+    // Attach the observer as a ref to the DOM. 
     <div ref={observer} onClick={disconnect}>
       App
     </div>
