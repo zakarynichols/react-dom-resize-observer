@@ -1,5 +1,5 @@
 import { useResizeObserver } from "../useResizeObserver"
-import { fireEvent, render, waitFor } from "@testing-library/react"
+import { fireEvent, render } from "@testing-library/react"
 import React from "react"
 
 let mockObserve = jest.fn()
@@ -7,14 +7,6 @@ let mockDisconnect = jest.fn()
 let mockUnobserve = jest.fn()
 
 class ResizeObserver {
-  callback: ResizeObserverCallback
-
-  constructor(callback: ResizeObserverCallback) {
-    this.callback = function (entries: ResizeObserverEntry[]) {
-      console.log(entries)
-    }
-  }
-
   observe() {
     mockObserve()
   }
