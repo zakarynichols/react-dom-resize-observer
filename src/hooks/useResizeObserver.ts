@@ -1,105 +1,82 @@
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef } from "react"
 
-type ResizeEntry<T> = {
-  contentBoxSize: { inlineSize: number; blockSize: number }
-  contentRect: {
-    bottom: number
-    height: number
-    left: number
-    right: number
-    top: number
-    width: number
-    x: number
-    y: number
-  }
-  target: T
-}
-
-export function useResizeObserver<T extends Element>(
-  onResize?: (entry: ResizeEntry<T> & { target: T }) => void
+export function useResizeObserver<T extends Element | null>(
+  ref?: React.MutableRefObject<T>,
+  onResize?: (entry: ResizeObserverEntry) => void
 ): {
-  entry: ResizeEntry<T> | null
+  entry: ResizeObserverEntry | null
   observer: (el: T) => void
-  disconnect: () => void
+  disconnect?: () => void
 } {
-  const [entry, setEntry] = useState<ResizeEntry<T> | null>(null)
-  const [el, setEl] = useState<T | null>(null)
-
-  const observer = useCallback((el: T) => {
-    setEl(el)
-  }, [])
-
+  const resizeObserver = useRef<ResizeObserver | null>(null)
+  const observerEntry = useRef<ResizeObserverEntry | null>(null)
   const disconnect = useRef(() => {
     /** */
   })
+  const unobserve = useRef(() => {
+    /** */
+  })
+  /** Set when */
+  const isElementObserved = useRef(false)
 
-  const cb = useCallback((entry: ResizeEntry<T> | null) => {
-    setEntry(entry)
-  }, [])
+  /** Pass a callback to set the observed element. */
+  const observer = useCallback(
+    (el: T) => {
+      if (el === null) return
 
-  useEffect(() => {
-    if (el === null) return
-    const resizeObserver = new ResizeObserver(entries => {
-      if (entries.length === 0) return
+      resizeObserver.current = new ResizeObserver(entries => {
+        if (entries.length === 0) return
 
-      const {
-        contentBoxSize: [contentBoxSize],
-        contentRect
-      } = entries[0]
+        observerEntry.current = entries[0]
 
-      cb({
-        contentBoxSize: {
-          inlineSize: contentBoxSize.inlineSize,
-          blockSize: contentBoxSize.blockSize
-        },
-        contentRect: {
-          bottom: contentRect.bottom,
-          height: contentRect.height,
-          left: contentRect.left,
-          right: contentRect.right,
-          top: contentRect.top,
-          width: contentRect.width,
-          x: contentRect.x,
-          y: contentRect.y
-        },
-        target: el
+        if (onResize) {
+          onResize(entries[0])
+        }
       })
 
-      if (onResize) {
-        onResize({
-          contentBoxSize: {
-            inlineSize: contentBoxSize.inlineSize,
-            blockSize: contentBoxSize.blockSize
-          },
-          contentRect: {
-            bottom: contentRect.bottom,
-            height: contentRect.height,
-            left: contentRect.left,
-            right: contentRect.right,
-            top: contentRect.top,
-            width: contentRect.width,
-            x: contentRect.x,
-            y: contentRect.y
-          },
-          target: el
-        })
+      resizeObserver.current.observe(el)
+
+      isElementObserved.current = true
+
+      disconnect.current = (): void => {
+        resizeObserver.current?.disconnect()
       }
-    })
 
-    resizeObserver.observe(el)
+      unobserve.current = (): void => {
+        resizeObserver.current?.unobserve(el)
+      }
+    },
+    [onResize]
+  )
 
-    disconnect.current = (): void => {
-      resizeObserver.disconnect()
-    }
+  /** Set the element reference as a side-effect if supplied. */
+  useEffect(() => {
+    if (
+      ref?.current === undefined ||
+      ref.current === null ||
+      isElementObserved.current === true
+    )
+      return
+    observer(ref.current)
+  }, [observer, ref])
 
-    return () => {
-      resizeObserver.unobserve(el)
-      resizeObserver.disconnect()
-    }
-  }, [el, onResize, cb])
+  /** If there is an element reference passed in, set to true to prevent observer callback running twice. */
+  useEffect(() => {
+    if (ref?.current === undefined || ref.current === null) return
+    isElementObserved.current = true
+  }, [ref])
+
+  /** Unobserve and disconnect when unmounted. */
+  useEffect(
+    () => () => {
+      unobserve.current()
+      disconnect.current()
+    },
+    []
+  )
 
   return {
-    entry,
+    entry: observerEntry.current,
     observer,
     disconnect: disconnect.current
   }

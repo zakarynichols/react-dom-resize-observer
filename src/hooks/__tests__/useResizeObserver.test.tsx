@@ -1,6 +1,6 @@
 import { useResizeObserver } from "../useResizeObserver"
 import { act, fireEvent, render, renderHook } from "@testing-library/react"
-import React from "react"
+import React, { MutableRefObject } from "react"
 import { disconnect } from "process"
 
 let mockObserve = jest.fn()
@@ -21,11 +21,15 @@ class ResizeObserver {
 
 window.ResizeObserver = ResizeObserver
 
-const MockComponent = () => {
-  const result = useResizeObserver<HTMLDivElement>()
+const MockComponent = (props: {
+  elementRef?: MutableRefObject<HTMLDivElement>
+}) => {
+  const result = useResizeObserver<HTMLDivElement>(props.elementRef)
   return (
     <div>
-      <div ref={result.observer}>Mock</div>
+      <div ref={props.elementRef === undefined ? result.observer : undefined}>
+        Mock
+      </div>
       <button onClick={result.disconnect}>Disconnect</button>
     </div>
   )
@@ -39,8 +43,14 @@ it("does not throw", () => {
   expect(() => <MockComponent />).not.toThrow()
 })
 
-it("observes the registered DOM element", () => {
+it("observes the DOM element passed into the observer callback.", () => {
   render(<MockComponent />)
+  expect(mockObserve).toHaveBeenCalledTimes(1)
+})
+
+it("observes the DOM element reference passed as a parameter.", () => {
+  const elRef = { current: document.createElement("div") }
+  render(<MockComponent elementRef={elRef} />)
   expect(mockObserve).toHaveBeenCalledTimes(1)
 })
 
@@ -87,7 +97,9 @@ it("returns the entry from the observer callback", () => {
 
   window.ResizeObserver = ResizeObserver
 
-  const { result } = renderHook(() => useResizeObserver<HTMLDivElement>())
+  const { result, rerender } = renderHook(() =>
+    useResizeObserver<HTMLDivElement>()
+  )
 
   act(() => {
     const el = document.createElement("div")
@@ -120,11 +132,16 @@ it("returns the entry from the observer callback", () => {
       new ResizeObserver(observerCallback)
     )
   })
+
+  rerender()
+
   expect(result.current.entry).toEqual({
-    contentBoxSize: {
-      blockSize: 0,
-      inlineSize: 0
-    },
+    contentBoxSize: [
+      {
+        blockSize: 0,
+        inlineSize: 0
+      }
+    ],
     contentRect: {
       bottom: 0,
       height: 0,
@@ -135,7 +152,7 @@ it("returns the entry from the observer callback", () => {
       x: 0,
       y: 0
     },
-    target: expect.any(HTMLDivElement)
+    target: <div />
   })
 })
 
@@ -156,7 +173,9 @@ it("calls onResize callback if there are entries", () => {
   window.ResizeObserver = ResizeObserver
 
   const mockOnResize = jest.fn()
-  const { result } = renderHook(() => useResizeObserver<HTMLDivElement>(mockOnResize))
+  const { result } = renderHook(() =>
+    useResizeObserver<HTMLDivElement>(undefined, mockOnResize)
+  )
 
   act(() => {
     const el = document.createElement("div")
@@ -192,10 +211,12 @@ it("calls onResize callback if there are entries", () => {
 
   expect(mockOnResize).toHaveBeenCalledTimes(1)
   expect(mockOnResize).toHaveBeenCalledWith({
-    contentBoxSize: {
-      blockSize: 0,
-      inlineSize: 0
-    },
+    contentBoxSize: [
+      {
+        blockSize: 0,
+        inlineSize: 0
+      }
+    ],
     contentRect: {
       bottom: 0,
       height: 0,
@@ -206,7 +227,7 @@ it("calls onResize callback if there are entries", () => {
       x: 0,
       y: 0
     },
-    target: expect.any(HTMLDivElement)
+    target: <div />
   })
 })
 
@@ -225,7 +246,9 @@ it("returns a null entry and does not call onResize if no rentries were called b
   window.ResizeObserver = ResizeObserver
 
   const mockOnResize = jest.fn()
-  const { result } = renderHook(() => useResizeObserver(mockOnResize))
+  const { result } = renderHook(() =>
+    useResizeObserver(undefined, mockOnResize)
+  )
 
   act(() => {
     const el = document.createElement("div")
