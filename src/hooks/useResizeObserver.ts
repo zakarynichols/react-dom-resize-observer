@@ -1,25 +1,12 @@
 import React, { useCallback, useEffect, useRef } from "react"
 
 export function useResizeObserver<T extends Element | null>(
-  elementRef: React.MutableRefObject<T>
-): {
-  entry: ResizeObserverEntry | null
-  disconnect: () => void
-}
-
-export function useResizeObserver<T extends Element | null>(): {
-  entry: ResizeObserverEntry | null
-  observer: (el: T) => void
-  disconnect: () => void
-}
-
-export function useResizeObserver<T extends Element | null>(
   elementRef?: React.MutableRefObject<T>,
   onResize?: (entry: ResizeObserverEntry) => void
 ): {
   entry: ResizeObserverEntry | null
-  observer?: (el: T) => void
-  disconnect?: () => void
+  observer: (el: T) => void
+  disconnect: () => void
 } {
   const resizeObserver = useRef<ResizeObserver | null>(null)
   const observerEntry = useRef<ResizeObserverEntry | null>(null)
@@ -70,13 +57,6 @@ export function useResizeObserver<T extends Element | null>(
       disconnect.current()
     }
   }, [])
-
-  // if (elementRef?.current !== null) {
-  //   return {
-  //     entry: observerEntry.current,
-  //     disconnect: disconnect.current
-  //   }
-  // }
 
   return {
     entry: observerEntry.current,
