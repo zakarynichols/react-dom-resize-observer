@@ -3,7 +3,15 @@
     "browser": true,
     "es2021": true
   },
-  "ignorePatterns": ["dist", "node_modules", "*.d.ts", "*.js", ".jsx", "*.test.ts", "*test.tsx"],
+  "ignorePatterns": [
+    "dist",
+    "node_modules",
+    "*.d.ts",
+    "*.js",
+    ".jsx",
+    "*.test.ts",
+    "*test.tsx"
+  ],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
@@ -37,11 +45,5 @@
     "@typescript-eslint/no-unnecessary-condition": ["error"],
     "@typescript-eslint/no-unsafe-call": ["error"],
     "@typescript-eslint/no-unsafe-return": ["error"]
-  },
-  "overrides": [
-    {
-      // enable the rule specifically for TypeScript files
-      "files": ["*.ts", "*.tsx"]
-    }
-  ]
+  }
 }

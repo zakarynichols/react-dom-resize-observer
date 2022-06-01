@@ -1,29 +1,39 @@
-import { useCallback, useEffect, useRef } from "react"
+import React, { useCallback, useEffect, useRef } from "react"
 
 export function useResizeObserver<T extends Element | null>(
-  ref?: React.MutableRefObject<T>,
+  elementRef: React.MutableRefObject<T>
+): {
+  entry: ResizeObserverEntry | null
+  disconnect: () => void
+}
+
+export function useResizeObserver<T extends Element | null>(): {
+  entry: ResizeObserverEntry | null
+  observer: (el: T) => void
+  disconnect: () => void
+}
+
+export function useResizeObserver<T extends Element | null>(
+  elementRef?: React.MutableRefObject<T>,
   onResize?: (entry: ResizeObserverEntry) => void
 ): {
   entry: ResizeObserverEntry | null
-  observer: (el: T) => void
+  observer?: (el: T) => void
   disconnect?: () => void
 } {
   const resizeObserver = useRef<ResizeObserver | null>(null)
   const observerEntry = useRef<ResizeObserverEntry | null>(null)
   const disconnect = useRef(() => {
-    /** */
+    /** Initialized as a no-op */
   })
   const unobserve = useRef(() => {
-    /** */
+    /** Initialized as a no-op */
   })
-  /** Set when */
-  const isElementObserved = useRef(false)
 
-  /** Pass a callback to set the observed element. */
+  /** Callback with the same signature as an elements `ref` attribute. */
   const observer = useCallback(
     (el: T) => {
       if (el === null) return
-
       resizeObserver.current = new ResizeObserver(entries => {
         if (entries.length === 0) return
 
@@ -36,8 +46,6 @@ export function useResizeObserver<T extends Element | null>(
 
       resizeObserver.current.observe(el)
 
-      isElementObserved.current = true
-
       disconnect.current = (): void => {
         resizeObserver.current?.disconnect()
       }
@@ -49,31 +57,26 @@ export function useResizeObserver<T extends Element | null>(
     [onResize]
   )
 
-  /** Set the element reference as a side-effect if supplied. */
+  /** If they have provided a ref of their own, set it the observer here. */
   useEffect(() => {
-    if (
-      ref?.current === undefined ||
-      ref.current === null ||
-      isElementObserved.current === true
-    )
-      return
-    observer(ref.current)
-  }, [observer, ref])
-
-  /** If there is an element reference passed in, set to true to prevent observer callback running twice. */
-  useEffect(() => {
-    if (ref?.current === undefined || ref.current === null) return
-    isElementObserved.current = true
-  }, [ref])
+    if (elementRef?.current === undefined || elementRef.current === null) return
+    observer(elementRef.current)
+  }, [observer, elementRef])
 
   /** Unobserve and disconnect when unmounted. */
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    return () => {
       unobserve.current()
       disconnect.current()
-    },
-    []
-  )
+    }
+  }, [])
+
+  // if (elementRef?.current !== null) {
+  //   return {
+  //     entry: observerEntry.current,
+  //     disconnect: disconnect.current
+  //   }
+  // }
 
   return {
     entry: observerEntry.current,

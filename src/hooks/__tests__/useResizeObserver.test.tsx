@@ -1,7 +1,6 @@
 import { useResizeObserver } from "../useResizeObserver"
 import { act, fireEvent, render, renderHook } from "@testing-library/react"
 import React, { MutableRefObject } from "react"
-import { disconnect } from "process"
 
 let mockObserve = jest.fn()
 let mockDisconnect = jest.fn()
