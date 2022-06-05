@@ -17,27 +17,24 @@ $ npm install react-dom-resize-observer
 
 ```tsx
 export function App() {
-  // Pass a callback to be fired on resize event. 
-  // Wrap in `useCallback` or in module scope for referential stability.
-  const onResize = useCallback((entry: ResizeObserverEntry & { target: HTMLDivElement }) => {
-    if (entry === null) return
-    // Do something with the entry...
-  }, [])
-
-  /*
-   * Pass the element type you're going to attach the observer to. In this case, `HTMLDivElement`.
-   * This generic type parameter helps infer the correct typing for `onResize` and `observer`.
-   */
   const {
       // New dimensions when resize is observed.
       entry, 
       // Callback to pass as a ref to give this hook access to the DOM element.
       observer, 
       // Callback to disconnect observing completely.
-      disconnect 
-      // `onResize` can be used to get access to the raw DOM element when resizing occurs.
-      // Can be used to perform some imperative updates or other logic on element resize event.
+      disconnect
+      // Callback to unobserve a specific element.
+      unobserve 
     } = useResizeObserver<HTMLDivElement>(onResize)
+
+    const { entry, disconnect, unobserve, observe } =
+    useResizeObserver<HTMLDivElement | null>({
+      // You can optionally pass your own ref if you already have one.
+      elementRef: ref,
+      onResize: (el) => { /** Do something with the element... */ },
+    });
+
 
   return (
     // Attach the observer as a ref to the DOM. 
