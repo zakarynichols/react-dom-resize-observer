@@ -1,66 +1,79 @@
 import React, { useCallback, useEffect, useRef } from "react"
 
-export function useResizeObserver<T extends Element | null>(
-  elementRef?: React.MutableRefObject<T>,
-  onResize?: (entry: ResizeObserverEntry) => void
-): {
+/**
+ * useResizeObserver is an abstraction to subscribe an element to the ResizeObserver API.
+ * This hook internally uses only `useRef` and will not trigger a re-render.
+ */
+export function useResizeObserver<T extends Element | null>(params?: {
+  elementRef?: React.MutableRefObject<T>
+  onResize?: (el: T) => void
+}): {
   entry: ResizeObserverEntry | null
-  observer: (el: T) => void
-  disconnect: () => void
+  observe: (el: T) => void
+  disconnect?: (() => void) | null
+  unobserve?: (() => void) | null
 } {
+  /** A local element reference to set if they did not pass one. */
+  const currentElement = useRef<T | null>(null)
+  /** The resize observer instance */
   const resizeObserver = useRef<ResizeObserver | null>(null)
+  /** The actual observer entry returned on resize. */
   const observerEntry = useRef<ResizeObserverEntry | null>(null)
-  const disconnect = useRef(() => {
-    /** Initialized as a no-op */
-  })
-  const unobserve = useRef(() => {
-    /** Initialized as a no-op */
-  })
+  /** Ref to close over the disconnect. */
+  const disconnect = useRef<(() => void) | null>(null)
+  /** Ref to close over the unobserve and its element. */
+  const unobserve = useRef<(() => void) | null>(null)
+
+  /** If they pass their own ref, set it to the current element */
+  useEffect(() => {
+    if (
+      params?.elementRef?.current !== undefined &&
+      params.elementRef.current !== null
+    )
+      currentElement.current = params.elementRef.current
+  }, [params?.elementRef])
 
   /** Callback with the same signature as an elements `ref` attribute. */
-  const observer = useCallback(
-    (el: T) => {
-      if (el === null) return
-      resizeObserver.current = new ResizeObserver(entries => {
-        if (entries.length === 0) return
+  const observe = useCallback((el: T) => {
+    if (el === null) return
+    currentElement.current = el
+  }, [])
 
-        observerEntry.current = entries[0]
-
-        if (onResize) {
-          onResize(entries[0])
-        }
-      })
-
-      resizeObserver.current.observe(el)
-
-      disconnect.current = (): void => {
-        resizeObserver.current?.disconnect()
-      }
-
-      unobserve.current = (): void => {
-        resizeObserver.current?.unobserve(el)
-      }
-    },
-    [onResize]
-  )
-
-  /** If they have provided a ref of their own, set it the observer here. */
   useEffect(() => {
-    if (elementRef?.current === undefined || elementRef.current === null) return
-    observer(elementRef.current)
-  }, [observer, elementRef])
+    const el = currentElement.current
 
-  /** Unobserve and disconnect when unmounted. */
-  useEffect(() => {
+    if (el === null) return
+
+    const resize = (resizeObserver.current = new ResizeObserver(entries => {
+      if (entries.length === 0) return
+      observerEntry.current = entries[0]
+    }))
+
+    resize.observe(el)
+
+    disconnect.current = (): void => {
+      resize.disconnect()
+    }
+
+    unobserve.current = (): void => {
+      resize.unobserve(el)
+    }
+
     return () => {
-      unobserve.current()
-      disconnect.current()
+      resize.disconnect()
+      resize.unobserve(el)
     }
   }, [])
 
+  useEffect(() => {
+    if (currentElement.current && params?.onResize)
+      params.onResize(currentElement.current)
+  }, [params])
+
   return {
     entry: observerEntry.current,
-    observer,
-    disconnect: disconnect.current
+    observe,
+    disconnect: disconnect.current,
+    unobserve: unobserve.current
   }
 }
