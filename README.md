@@ -27,6 +27,7 @@ export function App() {
       // Callback to unobserve a specific element.
       unobserve 
     } =
+    // Pass the same DOM element type as a type param to help the hook infer the correct types.
     useResizeObserver<HTMLDivElement | null>({
       // You can optionally pass your own ref if you already have one.
       elementRef: ref,

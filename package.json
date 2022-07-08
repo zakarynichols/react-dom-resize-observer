@@ -1,13 +1,13 @@
 {
   "name": "react-dom-resize-observer",
-  "version": "0.2.0",
-  "description": "",
+  "version": "1.0.0",
+  "description": "React hook implementing the Resize Observer API.",
   "main": "./dist/index.js",
   "scripts": {
     "test": "jest --config jest.config.js",
     "build": "tsc"
   },
-  "author": "Zak Nichols",
+  "author": "Zakary Nichols",
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.18.2",
