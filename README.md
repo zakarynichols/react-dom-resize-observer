@@ -23,7 +23,7 @@ export function App() {
       // Callback to pass as a ref to give this hook access to the DOM element.
       observer, 
       // Callback to disconnect observing completely.
-      disconnect
+      disconnect,
       // Callback to unobserve a specific element.
       unobserve 
     } =
@@ -31,7 +31,7 @@ export function App() {
       // You can optionally pass your own ref if you already have one.
       elementRef: ref,
       // You can optionally pass a callback to access the raw DOM element on resize.
-      onResize: (el) => { /** Do something with the element... */ },
+      onResize: (el) => { /** Access the element on resize... */ },
     });
 
 
